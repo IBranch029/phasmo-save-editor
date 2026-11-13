@@ -255,6 +255,16 @@ the suite stays green on a fresh machine and never touches the original save.
 
 ---
 
+## Contributing
+
+Bug reports and pull requests are welcome. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) first - it explains how to build the
+project, how to test it and, most importantly, the two rules that keep the
+save format safe: never re-serialise the payload and never write before
+verifying.
+
+---
+
 ## License
 
 [MIT](LICENSE) © PhasmoSave Editor
