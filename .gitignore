@@ -1,0 +1,91 @@
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+
+# ---------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------
+dist/
+dist-ssr/
+build/
+*.local
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/
+src-tauri/Cargo.lock.bak
+
+# ---------------------------------------------------------------------------
+# Local Phasmophobia saves, backups and dumps - never commit these
+# ---------------------------------------------------------------------------
+SaveFile.txt
+SaveFile.txt.bak_*
+SaveFile*.txt
+*.es3
+*.es3.bak*
+savefile.txt
+savefile.txt.bak_*
+
+# Any timestamped backup this tool (or the game) produces
+*.bak
+*.bak_*
+*.bak.*
+*.tmp
+*.temp
+
+# Decrypted payloads, dumps and crash logs
+*dump*.json
+*decrypted*.json
+*plaintext*.json
+savestate*.json
+profile-dump*
+crash*.log
+hs_err_pid*.log
+
+# ---------------------------------------------------------------------------
+# Secrets and local settings
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------------------------------------------------------------------------
+# Tooling caches
+# ---------------------------------------------------------------------------
+.cache/
+.parcel-cache/
+.vite/
+.turbo/
+.eslintcache
+.stylelintcache
+
+# ---------------------------------------------------------------------------
+# Editors and operating systems
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+Desktop.ini
+
+# ---------------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
