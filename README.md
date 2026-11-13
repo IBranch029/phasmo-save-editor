@@ -26,8 +26,6 @@ save in a broken state.
 Everything happens locally on your machine. The editor talks to your profile
 through the game's own file format and never to the network.
 
-![Dashboard](docs/screenshots/dashboard.png)
-
 ### Highlights
 
 | | |
@@ -38,10 +36,6 @@ through the game's own file format and never to the network.
 | **Equipment** | All 32 pieces of kit with quantities, tier 1 - 3 unlocks and a one click *unlock all*. |
 | **Backups** | A timestamped backup is written before every change and can be restored at any time. |
 | **Safety** | Refuses to write while the game is running, verifies the result and replaces the file atomically. |
-
-![Equipment](docs/screenshots/equipment.png)
-
-![Backup archive](docs/screenshots/backup-archive.png)
 
 ---
 
@@ -127,6 +121,23 @@ applied by rewriting the requested literal in place, so the rest of the payload
 is never touched. This keeps the save readable for Easy Save 3 and avoids the
 precision loss that a full re-serialisation would cause.
 
+### Equipment tiers
+
+The tiers use the same trick. The current tier of an item lives in
+`<Item>Tier`, while the amount of every owned tier is kept in a separate
+counter whose name carries an internal index of the game:
+
+| Field | Meaning |
+| --- | --- |
+| `<Item>Tier` | the current tier of the item |
+| `<Item>TierOneUnlockOwned` | whether the item is owned at all |
+| `<Item>-1Tier` | how many tier two items are owned |
+| `<Item>0Tier` | how many tier three items are owned |
+| `<Item>1Tier` | reserved, the game never writes it |
+
+The tier buttons in the dashboard mirror that representation, so unlocking tier
+three produces exactly the state the game itself writes.
+
 ---
 
 ## Safety model
@@ -195,8 +206,7 @@ phasmo-save-editor/
 │       ├── save.rs             # path resolution, backups, atomic writes
 │       ├── commands.rs         # the Tauri command surface
 │       └── error.rs            # user facing error type
-├── scripts/                    # icon and screenshot tooling
-└── docs/screenshots/           # images used by this README
+└── scripts/                    # icon generation and test profile tooling
 ```
 
 ---

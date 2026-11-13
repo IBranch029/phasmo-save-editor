@@ -85,7 +85,9 @@ export function EquipmentRow({
   const setTier = (next: number) => {
     if (entry.unlockKey) onFieldChange(entry.unlockKey, next >= 1);
     if (entry.tierKey) onFieldChange(entry.tierKey, next);
+    // The game keeps the amount of every owned tier in its own counter.
     for (const slot of entry.tierSlots) {
+      if (!slot.writable) continue;
       onFieldChange(slot.key, next >= slot.tier ? 1 : 0);
     }
   };

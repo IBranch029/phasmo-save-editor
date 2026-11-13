@@ -1,18 +1,27 @@
 'use strict';
 /**
- * Creates a sanitised demo profile for the README screenshots.
+ * Creates a sanitised demo profile so the editor can be tried without
+ * touching the real save file.
  *
- * The real save file is decrypted, a few values are replaced and the payload
- * is written back to a neutral folder. Nothing in the original save is
- * touched.
+ * The real profile is decrypted, a handful of values are replaced and the
+ * payload is written back into a separate folder. The original save file is
+ * only read, never modified.
+ *
+ * Usage:
+ *   node scripts/make-demo-profile.cjs [target folder]
+ *
+ * The source folder defaults to the standard Phasmophobia data directory.
  */
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-const SOURCE =
-  'C:/Users/pines/AppData/LocalLow/Kinetic Games/Phasmophobia/SaveFile.txt';
-const TARGET_DIR = process.argv[2] || 'C:/PhasmoDemo';
+const SOURCE_DIR =
+  process.env.PHASMO_SAVE_DIR ||
+  path.join(os.homedir(), 'AppData', 'LocalLow', 'Kinetic Games', 'Phasmophobia');
+const TARGET_DIR = process.argv[2] || path.join(os.tmpdir(), 'phasmo-demo');
+const SOURCE = path.join(SOURCE_DIR, 'SaveFile.txt');
 const TARGET = path.join(TARGET_DIR, 'SaveFile.txt');
 
 const PASSWORD = 't36gref9u84y7f43g';
@@ -95,10 +104,16 @@ for (const [key, value] of Object.entries(VALUES)) {
       key +
       '"\\s*:\\s*\\{\\s*"__type"\\s*:\\s*"(?:int|float)"\\s*,\\s*"value"\\s*:\\s*)-?[0-9.]+',
   );
+
+  if (!pattern.test(text)) {
+    console.warn('  ! field not found: ' + key);
+    continue;
+  }
+
   const before = text;
   text = text.replace(pattern, (match, prefix) => prefix + value);
-  if (text !== before) applied += 1;
-  else console.warn('  ! field not found: ' + key);
+  applied += 1;
+  if (text === before) console.log('  = already set: ' + key);
 }
 
 fs.mkdirSync(TARGET_DIR, { recursive: true });
@@ -106,3 +121,4 @@ fs.writeFileSync(TARGET, encrypt(text));
 
 console.log('applied ' + applied + ' of ' + Object.keys(VALUES).length + ' values');
 console.log('wrote ' + TARGET + ' (' + fs.statSync(TARGET).size + ' bytes)');
+console.log('run the editor against it with: set PHASMO_SAVE_DIR=' + TARGET_DIR);

@@ -57,15 +57,23 @@ export const CATEGORY_ORDER: GearCategory[] = ["gear", "tool", "consumable", "co
 
 
 /**
- * The two per tier ownership counters the game stores for every item.
+ * The per tier counters the game keeps for every piece of equipment.
  *
- * The game names them `<Item>0Tier` and `<Item>-1Tier`; the counters describe
- * whether tier one and tier two of the item are owned.
+ * The names are the internal indices of the game: `-1Tier` holds the amount
+ * of tier two items, `0Tier` the amount of tier three items and `1Tier` is
+ * reserved for a tier that does not exist yet.
  */
-export const TIER_SLOT_SUFFIXES = ["0Tier", "-1Tier"] as const;
+export const TIER_SLOT_SUFFIXES = ["0Tier", "1Tier", "-1Tier"] as const;
 
-/** The tier that a per tier ownership counter belongs to. */
-export const TIER_SLOT_TIER: Record<string, number> = { "0Tier": 1, "-1Tier": 2 };
+/**
+ * The tier a counter belongs to and whether the editor is allowed to write
+ * it. The reserved slot is left untouched.
+ */
+export const TIER_SLOT_INFO: Record<string, { tier: number; writable: boolean }> = {
+  "-1Tier": { tier: 2, writable: true },
+  "0Tier": { tier: 3, writable: true },
+  "1Tier": { tier: 4, writable: false },
+};
 
 /** A single equipment entry derived from the save file. */
 export interface EquipmentEntry {
@@ -83,8 +91,13 @@ export interface EquipmentEntry {
   /** Whether the first tier is owned. */
   unlockKey: string | null;
   unlocked: boolean;
-  /** The per tier ownership counters (`<Item>0Tier`, `<Item>-1Tier`). */
-  tierSlots: { key: string; tier: number; value: number }[];
+  /** The per tier ownership counters (`<Item>0Tier`, `<Item>-1Tier`, ...). */
+  tierSlots: {
+    key: string;
+    tier: number;
+    value: number;
+    writable: boolean;
+  }[];
 }
 
 /** The maximum tier the game supports. */
@@ -164,13 +177,14 @@ export function buildEquipment(profile: SaveProfile): EquipmentEntry[] {
     const tierSlots: EquipmentEntry["tierSlots"] = [];
     for (const suffix of TIER_SLOT_SUFFIXES) {
       const slotKey = `${base}${suffix}`;
-      if (ints.has(slotKey)) {
-        tierSlots.push({
-          key: slotKey,
-          tier: TIER_SLOT_TIER[suffix] ?? 1,
-          value: ints.get(slotKey) ?? 0,
-        });
-      }
+      if (!ints.has(slotKey)) continue;
+      const info = TIER_SLOT_INFO[suffix] ?? { tier: 1, writable: false };
+      tierSlots.push({
+        key: slotKey,
+        tier: info.tier,
+        value: ints.get(slotKey) ?? 0,
+        writable: info.writable,
+      });
     }
 
     entries.push({
